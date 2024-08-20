@@ -13,11 +13,11 @@ dependencies:
   flutter:
     sdk: flutter
 
-
   cupertino_icons: ^1.0.8
   flutter_blue:
   get: ^4.6.5
   permission_handler:
+  fl_chart: ^0.68.0
 
 dev_dependencies:
   flutter_test:
