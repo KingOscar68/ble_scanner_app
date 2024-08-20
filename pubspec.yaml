@@ -1,0 +1,31 @@
+name: ble_scanner_app
+description: "App BLE to scan BLE near devices"
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter_blue_plus: ^1.16.2
+  flutter:
+    sdk: flutter
+
+
+  cupertino_icons: ^1.0.8
+  flutter_blue:
+  get: ^4.6.5
+  permission_handler:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+
+flutter:
+
+  uses-material-design: true
+
