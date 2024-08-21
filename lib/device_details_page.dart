@@ -43,9 +43,24 @@ class DeviceDetailsPage extends StatelessWidget {
             SizedBox(height: 10),
             Obx(() {
               if (controller.firstCharacteristicValue.value != 0 && controller.secondCharacteristicValue.value != 0) {
-                return Text(
-                  "Connected",
-                  style: TextStyle(color: Colors.green, fontSize: 16, fontWeight: FontWeight.bold),
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Connected",
+                      style: TextStyle(color: Colors.green, fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "ECG: ${controller.firstCharacteristicValue.value}",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      "PPG: ${controller.secondCharacteristicValue.value}",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
                 );
               } else {
                 return Text(
