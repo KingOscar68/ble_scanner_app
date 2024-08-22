@@ -52,12 +52,12 @@ class DeviceDetailsPage extends StatelessWidget {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      "First Characteristic Value: ${controller.firstCharacteristicData.last}",
+                      "ECG Value: ${controller.firstCharacteristicData.last}",
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                     SizedBox(height: 5),
                     Text(
-                      "Second Characteristic Value: ${controller.secondCharacteristicData.last}",
+                      "PPG Value: ${controller.secondCharacteristicData.last}",
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ],
