@@ -1,16 +1,16 @@
+import 'dart:typed_data';
+
 import 'package:ble_scanner_app/device_details_page.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:typed_data';
 
 class BleController extends GetxController {
   FlutterBlue ble = FlutterBlue.instance;
 
-  // Estos almacenarán los valores recibidos de las características como enteros de 16 bits.
-  RxInt firstCharacteristicValue = 0.obs;
-  RxInt secondCharacteristicValue = 0.obs;
-
+  // Listas para almacenar los últimos 50 valores de las características
+  RxList<double> firstCharacteristicData = List.filled(200, 0.0).obs;
+  RxList<double> secondCharacteristicData = List.filled(200, 0.0).obs;
 
   // Método para escanear dispositivos cercanos
   Future scanDevices() async {
@@ -38,7 +38,6 @@ class BleController extends GetxController {
         // Encuentra el servicio específico y suscribe a las características
         services.forEach((service) async {
           if (service.uuid == Guid('12345678-1234-5678-1234-567812345678')) {
-
             // Procesar la primera característica
             final firstCharacteristic = service.characteristics.firstWhere(
                   (c) => c.uuid == Guid('98679657-1234-5678-1234-567812345678'),
@@ -47,9 +46,8 @@ class BleController extends GetxController {
             if (firstCharacteristic != null) {
               await firstCharacteristic.setNotifyValue(true);
               firstCharacteristic.value.listen((value) {
-                int intValue = _convertBytesToInt(value);
-                print("First Characteristic Value: $intValue");
-                firstCharacteristicValue.value = intValue;
+                double intValue = _convertBytesToDouble(value);
+                _updateDataList(firstCharacteristicData, intValue);
               });
             } else {
               print("First characteristic not found.");
@@ -63,9 +61,8 @@ class BleController extends GetxController {
             if (secondCharacteristic != null) {
               await secondCharacteristic.setNotifyValue(true);
               secondCharacteristic.value.listen((value) {
-                int intValue = _convertBytesToInt(value);
-                print("Second Characteristic Value: $intValue");
-                secondCharacteristicValue.value = intValue;
+                double intValue = _convertBytesToDouble(value);
+                _updateDataList(secondCharacteristicData, intValue);
               });
             } else {
               print("Second characteristic not found.");
@@ -83,14 +80,19 @@ class BleController extends GetxController {
     });
   }
 
-  // Conversión de bytes a entero de 16 bits
-  int _convertBytesToInt(List<int> bytes) {
-    // Asegúrate de que `bytes` tenga al menos 2 elementos.
+  // Método para actualizar las listas con los últimos 50 valores
+  void _updateDataList(RxList<double> dataList, double newValue) {
+    dataList.removeAt(0); // Elimina el primer elemento (más antiguo)
+    dataList.add(newValue); // Agrega el nuevo valor al final de la lista
+  }
+
+  // Conversión de bytes a doble (int de 16 bits a double)
+  double _convertBytesToDouble(List<int> bytes) {
     if (bytes.length >= 2) {
       ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
-      return byteData.getInt16(0, Endian.little); // Usa Endian.big si el orden de bytes es diferente
+      return byteData.getInt16(0, Endian.little).toDouble();
     }
-    return 0;
+    return 0.0;
   }
 
   Stream<List<ScanResult>> get scanResults => ble.scanResults;

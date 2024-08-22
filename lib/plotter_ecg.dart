@@ -34,16 +34,65 @@ class PlotterECGPage extends StatelessWidget {
                       show: true,
                       border: Border.all(color: Colors.white),
                     ),
-                    gridData: FlGridData(show: false),
-                    titlesData: FlTitlesData(show: false),
+                    gridData: FlGridData(
+                      show: true,
+                      drawVerticalLine: true,
+                      getDrawingHorizontalLine: (value) {
+                        return FlLine(
+                          color: Colors.white.withOpacity(0.2),
+                          strokeWidth: 1,
+                        );
+                      },
+                      getDrawingVerticalLine: (value) {
+                        return FlLine(
+                          color: Colors.white.withOpacity(0.2),
+                          strokeWidth: 1,
+                        );
+                      },
+                    ),
+                    titlesData: FlTitlesData(
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 40,
+                          getTitlesWidget: (value, meta) {
+                            return Text(
+                              value.toString(),
+                              style: TextStyle(color: Colors.white, fontSize: 12),
+                            );
+                          },
+                        ),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 40,
+                          getTitlesWidget: (value, meta) {
+                            return Text(
+                              value.toInt().toString(),
+                              style: TextStyle(color: Colors.white, fontSize: 12),
+                            );
+                          },
+                        ),
+                      ),
+                      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    ),
                     lineBarsData: [
                       LineChartBarData(
                         isCurved: true,
-                        spots: _createSpots(controller.firstCharacteristicValue.value),
+                        spots: _getSpotsFromData(controller.firstCharacteristicData),
                         color: Colors.blue,
                         belowBarData: BarAreaData(show: false),
+                        dotData: FlDotData(
+                          show: false, // Oculta los puntos, solo muestra la línea
+                        ),
+                        isStrokeCapRound: true, // Hace que los extremos de la línea sean redondeados
+                        barWidth: 2, // Grosor de la línea
                       ),
                     ],
+                    minY: -10,  // Ajuste del mínimo valor del eje Y
+                    maxY: 100,  // Ajuste del máximo valor del eje Y
                   ),
                 );
               }),
@@ -54,11 +103,10 @@ class PlotterECGPage extends StatelessWidget {
     );
   }
 
-  List<FlSpot> _createSpots(int value) {
-    List<FlSpot> spots = [];
-    for (int i = 0; i < 100; i++) {
-      spots.add(FlSpot(i.toDouble(), value.toDouble()));
-    }
-    return spots;
+  // Convierte la lista de datos en una lista de FlSpot para el gráfico
+  List<FlSpot> _getSpotsFromData(List<double> dataList) {
+    return List.generate(dataList.length, (index) {
+      return FlSpot(index.toDouble(), dataList[index]);
+    });
   }
 }
