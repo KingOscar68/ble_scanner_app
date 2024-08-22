@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:ble_scanner_app/device_details_page.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:get/get.dart';
@@ -89,11 +87,16 @@ class BleController extends GetxController {
   // Conversión de bytes a doble (int de 16 bits a double)
   double _convertBytesToDouble(List<int> bytes) {
     if (bytes.length >= 2) {
-      ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
-      return byteData.getInt16(0, Endian.little).toDouble();
+      int intValue = (bytes[0] << 8) | bytes[1];
+      // Si el valor es negativo, ajustamos manualmente
+      if (intValue & 0x8000 != 0) {
+        intValue = intValue - 0x10000;
+      }
+      return intValue.toDouble();
     }
     return 0.0;
   }
+
 
   Stream<List<ScanResult>> get scanResults => ble.scanResults;
 }
