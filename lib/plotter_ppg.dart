@@ -96,7 +96,7 @@ class PlotterPPGPage extends StatelessWidget {
                       ),
                     ],
                     minY: 0,  // Ajuste del mínimo valor del eje Y
-                    maxY: 110,  // Ajuste del máximo valor del eje Y
+                    maxY: 100,  // Ajuste del máximo valor del eje Y
                   ),
                 );
               }),
