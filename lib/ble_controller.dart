@@ -7,8 +7,8 @@ class BleController extends GetxController {
   FlutterBlue ble = FlutterBlue.instance;
 
   // Listas para almacenar los últimos 50 valores de las características
-  RxList<double> firstCharacteristicData = List.filled(200, 0.0).obs;
-  RxList<double> secondCharacteristicData = List.filled(200, 0.0).obs;
+  RxList<double> firstCharacteristicData = List.filled(1000, 0.0).obs;
+  RxList<double> secondCharacteristicData = List.filled(1000, 0.0).obs;
 
   // Método para escanear dispositivos cercanos
   Future scanDevices() async {
