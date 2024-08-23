@@ -27,6 +27,10 @@ class PlotterPPGPage extends StatelessWidget {
             SizedBox(height: 20),
             Expanded(
               child: Obx(() {
+                final data = controller.secondCharacteristicData;
+                final double maxY = data.isNotEmpty ? data.reduce((a, b) => a > b ? a : b) + 100 : 100;
+                final double minY = data.isNotEmpty ? data.reduce((a, b) => a < b ? a : b) - 100 : -100;
+
                 return LineChart(
                   LineChartData(
                     backgroundColor: Colors.black,
@@ -81,7 +85,7 @@ class PlotterPPGPage extends StatelessWidget {
                     lineBarsData: [
                       LineChartBarData(
                         isCurved: true,
-                        spots: _getSpotsFromData(controller.secondCharacteristicData),
+                        spots: _getSpotsFromData(data),
                         color: Colors.red,
                         belowBarData: BarAreaData(show: false),
                         dotData: FlDotData(
@@ -91,8 +95,8 @@ class PlotterPPGPage extends StatelessWidget {
                         barWidth: 2, // Grosor de la línea
                       ),
                     ],
-                    minY: -100,  // Ajuste del mínimo valor del eje Y
-                    maxY: 2000,  // Ajuste del máximo valor del eje Y
+                    minY: minY-200,  // Ajuste del mínimo valor del eje Y
+                    maxY: maxY+200,  // Ajuste del máximo valor del eje Y
                   ),
                 );
               }),
@@ -110,3 +114,4 @@ class PlotterPPGPage extends StatelessWidget {
     });
   }
 }
+
