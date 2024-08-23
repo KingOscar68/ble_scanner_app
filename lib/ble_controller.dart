@@ -41,31 +41,23 @@ class BleController extends GetxController {
                   (c) => c.uuid == Guid('98679657-1234-5678-1234-567812345678'),
             );
 
-            if (firstCharacteristic != null) {
-              await firstCharacteristic.setNotifyValue(true);
-              firstCharacteristic.value.listen((value) {
-                double intValue = _convertBytesToDouble(value);
-                _updateDataList(firstCharacteristicData, intValue);
-              });
-            } else {
-              print("First characteristic not found.");
-            }
+            await firstCharacteristic.setNotifyValue(true);
+            firstCharacteristic.value.listen((value) {
+              double intValue = _convertBytesToDouble(value);
+              _updateDataList(firstCharacteristicData, intValue);
+            });
 
             // Procesar la segunda característica
             final secondCharacteristic = service.characteristics.firstWhere(
                   (c) => c.uuid == Guid('87654321-1234-5678-1234-567812345678'),
             );
 
-            if (secondCharacteristic != null) {
-              await secondCharacteristic.setNotifyValue(true);
-              secondCharacteristic.value.listen((value) {
-                double intValue = _convertBytesToDouble(value);
-                _updateDataList(secondCharacteristicData, intValue);
-              });
-            } else {
-              print("Second characteristic not found.");
-            }
-          }
+            await secondCharacteristic.setNotifyValue(true);
+            secondCharacteristic.value.listen((value) {
+              double intValue = _convertBytesToDouble(value);
+              _updateDataList(secondCharacteristicData, intValue);
+            });
+                    }
         });
 
         // Navegar a la página de detalles del dispositivo
