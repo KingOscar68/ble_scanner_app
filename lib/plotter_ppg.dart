@@ -28,8 +28,6 @@ class PlotterPPGPage extends StatelessWidget {
             Expanded(
               child: Obx(() {
                 final data = controller.secondCharacteristicData;
-                final double maxY = data.isNotEmpty ? data.reduce((a, b) => a > b ? a : b) + 100 : 100;
-                final double minY = data.isNotEmpty ? data.reduce((a, b) => a < b ? a : b) - 100 : -100;
 
                 return LineChart(
                   LineChartData(
@@ -95,8 +93,8 @@ class PlotterPPGPage extends StatelessWidget {
                         barWidth: 2, // Grosor de la línea
                       ),
                     ],
-                    minY: 0,  // Ajuste del mínimo valor del eje Y
-                    maxY: 100,  // Ajuste del máximo valor del eje Y
+                    minY: 0,  // Establecer el mínimo valor del eje Y
+                    maxY: 100,  // Establecer el máximo valor del eje Y
                   ),
                 );
               }),
@@ -114,4 +112,3 @@ class PlotterPPGPage extends StatelessWidget {
     });
   }
 }
-
