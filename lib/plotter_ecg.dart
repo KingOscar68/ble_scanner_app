@@ -91,8 +91,8 @@ class PlotterECGPage extends StatelessWidget {
                         barWidth: 2, // Grosor de la línea
                       ),
                     ],
-                    minY: -10,  // Ajuste del mínimo valor del eje Y
-                    maxY: 100,  // Ajuste del máximo valor del eje Y
+                    minY: -100,  // Ajuste del mínimo valor del eje Y
+                    maxY: 2000,  // Ajuste del máximo valor del eje Y
                   ),
                 );
               }),
