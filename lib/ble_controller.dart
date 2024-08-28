@@ -72,8 +72,24 @@ class BleController extends GetxController {
 
   // Método para actualizar las listas con los últimos 50 valores
   void _updateDataList(RxList<double> dataList, double newValue) {
-    dataList.removeAt(0); // Elimina el primer elemento (más antiguo)
-    dataList.add(newValue); // Agrega el nuevo valor al final de la lista
+    // Aplica un filtro de promedio móvil simple
+    const int windowSize = 3; // Tamaño de la ventana del promedio móvil
+    if (dataList.isNotEmpty) {
+      double average = newValue;
+      int count = 1;
+
+      // Calcula el promedio móvil de los últimos `windowSize` valores
+      for (int i = dataList.length - 1; i >= dataList.length - windowSize && i >= 0; i--) {
+        average += dataList[i];
+        count++;
+      }
+      average /= count;
+      dataList.removeAt(0); // Elimina el primer elemento (más antiguo)
+      dataList.add(average); // Agrega el valor suavizado al final de la lista
+    } else {
+      dataList.removeAt(0); // Asegura que la lista mantenga su tamaño
+      dataList.add(newValue); // En caso de lista vacía, agrega el primer valor directamente
+    }
   }
 
   // Conversión de bytes a doble (int de 16 bits a double)
