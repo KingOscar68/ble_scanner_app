@@ -27,7 +27,8 @@ class PlotterPPGPage extends StatelessWidget {
             SizedBox(height: 20),
             Expanded(
               child: Obx(() {
-                final data = controller.secondCharacteristicData;
+                // Puedes elegir entre ppg1Data y ppg2Data
+                final data = controller.ppg1Data;
 
                 return LineChart(
                   LineChartData(
@@ -93,8 +94,8 @@ class PlotterPPGPage extends StatelessWidget {
                         barWidth: 2, // Grosor de la línea
                       ),
                     ],
-                    minY: 0,  // Establecer el mínimo valor del eje Y
-                    maxY: 100,  // Establecer el máximo valor del eje Y
+                    minY: -500000, // Valores mínimos ajustados para PPG
+                    maxY: 500000, // Valores máximos ajustados para PPG
                   ),
                 );
               }),
@@ -106,9 +107,9 @@ class PlotterPPGPage extends StatelessWidget {
   }
 
   // Convierte la lista de datos en una lista de FlSpot para el gráfico
-  List<FlSpot> _getSpotsFromData(List<double> dataList) {
+  List<FlSpot> _getSpotsFromData(List<int> dataList) {
     return List.generate(dataList.length, (index) {
-      return FlSpot(index.toDouble(), dataList[index]);
+      return FlSpot(index.toDouble(), dataList[index].toDouble());
     });
   }
 }

@@ -6,6 +6,11 @@ import 'package:permission_handler/permission_handler.dart';
 class BleController extends GetxController {
   FlutterBlue ble = FlutterBlue.instance;
 
+  // Datos decodificados
+  RxList<int> ecgData = List.filled(1000, 0).obs;
+  RxList<int> ppg1Data = List.filled(1000, 0).obs;
+  RxList<int> ppg2Data = List.filled(1000, 0).obs;
+
   // Listas para almacenar los últimos 50 valores de las características
   RxList<double> firstCharacteristicData = List.filled(1000, 0.0).obs;
   RxList<double> secondCharacteristicData = List.filled(1000, 0.0).obs;

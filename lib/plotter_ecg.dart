@@ -27,7 +27,7 @@ class PlotterECGPage extends StatelessWidget {
             SizedBox(height: 20),
             Expanded(
               child: Obx(() {
-                final data = controller.firstCharacteristicData;
+                final data = controller.ecgData;
 
                 return LineChart(
                   LineChartData(
@@ -93,8 +93,8 @@ class PlotterECGPage extends StatelessWidget {
                         barWidth: 2, // Grosor de la línea
                       ),
                     ],
-                    minY: 0,  // Establecer el mínimo valor del eje Y
-                    maxY: 100,  // Establecer el máximo valor del eje Y
+                    minY: -500000, // Valores mínimos ajustados para ECG
+                    maxY: 500000, // Valores máximos ajustados para ECG
                   ),
                 );
               }),
@@ -106,9 +106,9 @@ class PlotterECGPage extends StatelessWidget {
   }
 
   // Convierte la lista de datos en una lista de FlSpot para el gráfico
-  List<FlSpot> _getSpotsFromData(List<double> dataList) {
+  List<FlSpot> _getSpotsFromData(List<int> dataList) {
     return List.generate(dataList.length, (index) {
-      return FlSpot(index.toDouble(), dataList[index]);
+      return FlSpot(index.toDouble(), dataList[index].toDouble());
     });
   }
 }
