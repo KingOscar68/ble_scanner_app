@@ -10,10 +10,11 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(  // Cambia MaterialApp por GetMaterialApp
-      title: 'BLE App',
+    return MaterialApp(
+      title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -34,67 +35,51 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Center(child: Text("BLE SCANNER")),
-        backgroundColor: Colors.grey[800],
-        foregroundColor: Colors.white,
-      ),
-      backgroundColor: Colors.grey[850],
-      body: GetBuilder<BleController>(
-        init: BleController(),
-        builder: (BleController controller) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                StreamBuilder<List<ScanResult>>(
-                  stream: controller.scanResults,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Expanded(
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                            final data = snapshot.data![index];
-                            return Card(
-                              elevation: 2,
-                              color: Colors.grey[800],
-                              child: ListTile(
-                                title: Text(data.device.name, style: TextStyle(color: Colors.white)),
-                                subtitle: Text(data.device.id.id, style: TextStyle(color: Colors.white)),
-                                trailing: Text(data.rssi.toString(), style: TextStyle(color: Colors.white)),
-                                onTap: () => controller.connectToDevice(data.device, data.rssi),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    } else {
-                      return Center(
-                        child: Text("No Device Found", style: TextStyle(color: Colors.white)),
-                      );
-                    }
-                  },
-                ),
-                SizedBox(height: 15),
-                ElevatedButton(
-                  onPressed: () async {
+        appBar: AppBar(title: Text("BLE SCANNER"),),
+        body: GetBuilder<BleController>(
+          init: BleController(),
+          builder: (BleController controller)
+          {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  StreamBuilder<List<ScanResult>>(
+                      stream: controller.scanResults,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Expanded(
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: snapshot.data!.length,
+                                itemBuilder: (context, index) {
+                                  final data = snapshot.data![index];
+                                  return Card(
+                                    elevation: 2,
+                                    child: ListTile(
+                                      title: Text(data.device.name),
+                                      subtitle: Text(data.device.id.id),
+                                      trailing: Text(data.rssi.toString()),
+                                      onTap: ()=> controller.connectToDevice(data.device),
+                                    ),
+                                  );
+                                }),
+                          );
+                        }else{
+                          return Center(child: Text("No Device Found"),);
+                        }
+                      }),
+                  SizedBox(height: 10,),
+                  ElevatedButton(onPressed: ()  async {
                     controller.scanDevices();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue[900],
-                  ),
-                  child: Center(
-                    child: Text("SCAN"),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+                    // await controller.disconnectDevice();
+                  }, child: Text("SCAN")),
+
+                ],
+              ),
+            );
+          },
+        )
     );
   }
 }
