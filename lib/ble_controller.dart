@@ -1,6 +1,5 @@
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:get/get.dart';
-import 'dart:convert'; // Para procesar los valores recibidos
 
 class BleController extends GetxController {
   FlutterBlue ble = FlutterBlue.instance;
@@ -10,7 +9,7 @@ class BleController extends GetxController {
 
   RxBool isConnecting = true.obs;
   RxBool isConnected = false.obs;
-  RxList<int> receivedData = <int>[].obs; // Almacena los valores recibidos
+  RxMap<String, int> decodedValues = {"ecg": 0, "ppg1": 0, "ppg2": 0}.obs;
 
   BluetoothCharacteristic? targetCharacteristic;
 
@@ -23,7 +22,6 @@ class BleController extends GetxController {
         for (ScanResult result in results) {
           final device = result.device;
 
-          // Intenta conectarse al primer dispositivo encontrado
           try {
             await device.connect();
             ble.stopScan();
@@ -39,10 +37,12 @@ class BleController extends GetxController {
                     isConnected.value = true;
                     isConnecting.value = false;
 
-                    // Escucha valores de la característica
+                    // Activa notificaciones para recibir datos en tiempo real
                     targetCharacteristic?.setNotifyValue(true);
                     targetCharacteristic?.value.listen((value) {
-                      receivedData.value = value; // Actualiza los datos recibidos
+                      if (value.length >= 20) {
+                        decodeAFEData(value);
+                      }
                     });
 
                     // Llama al callback para navegar
@@ -61,5 +61,44 @@ class BleController extends GetxController {
       print("Error durante el escaneo: $e");
       isConnecting.value = false;
     }
+  }
+
+  // Función para decodificar datos del buffer
+  void decodeAFEData(List<int> buffer) {
+    if (buffer.length < 20) return;
+
+    // Extract ECG data (bytes 8-10)
+    int ecg1 = decodeSensorData(buffer.sublist(8, 11));
+
+    // Extract PPG1 data (bytes 12-14)
+    int ecg2 = decodeSensorData(buffer.sublist(12, 15));
+
+    // Extract PPG2 data (bytes 16-18)
+    int ppg = decodeSensorData(buffer.sublist(16, 19));
+
+    // Actualiza los valores decodificados
+    decodedValues["ecg1"] = ecg1;
+    decodedValues["ecg2"] = ecg2;
+    decodedValues["ppg"] = ppg;
+
+    print("ECG1: $ecg1, ECG2: $ecg2, PPG: $ppg");
+  }
+
+  // Función auxiliar para decodificar un sensor
+  int decodeSensorData(List<int> data) {
+    if (data.length != 3) return 0;
+
+    // Construye el valor absoluto a partir de los bits
+    int value = (data[2] & 0x1F) << 16 | (data[1] << 8) | data[0];
+
+    // Determina el signo
+    int sign = 0;
+    if ((data[2] & 0xE0) == 0xE0 || (data[2] & 0xE0) == 0xC0) {
+      sign = -1;
+    } else if((data[2] & 0xE0) == 0x20 || (data[2] & 0xE0) == 0x00){
+      sign = 1;
+    }
+
+    return sign * value;
   }
 }
