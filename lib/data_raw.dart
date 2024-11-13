@@ -8,6 +8,7 @@ class DataRawPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final BleController controller = Get.find<BleController>();
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Datos Decodificados")),
@@ -20,11 +21,11 @@ class DataRawPage extends StatelessWidget {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("ECG1: $ecg1", style: const TextStyle(fontSize: 18)),
+              Text("ECG1: $ecg1", style: textTheme.bodyLarge),
               const SizedBox(height: 10),
-              Text("ECG2: $ecg2", style: const TextStyle(fontSize: 18)),
+              Text("ECG2: $ecg2", style: textTheme.bodyLarge),
               const SizedBox(height: 10),
-              Text("PPG: $ppg", style: const TextStyle(fontSize: 18)),
+              Text("PPG: $ppg", style: textTheme.bodyLarge),
             ],
           );
         }),

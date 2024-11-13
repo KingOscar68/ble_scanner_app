@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'ble_controller.dart';
-import 'data_raw.dart'; // Nueva pantalla
+import 'data_raw.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,6 +18,14 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      themeMode: ThemeMode.system, // Cambia automáticamente según el sistema
       home: const MyHomePage(),
     );
   }
