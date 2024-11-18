@@ -9,7 +9,11 @@ class BleController extends GetxController {
 
   RxBool isConnecting = true.obs;
   RxBool isConnected = false.obs;
-  RxMap<String, int> decodedValues = {"ecg": 0, "ppg1": 0, "ppg2": 0}.obs;
+
+  RxMap<String, int> decodedValues = {"ecg1": 0, "ecg2": 0, "ppg": 0}.obs;
+
+  // Arreglo circular para ecg1
+  RxList<int> ecg1Data = List.filled(2500, 0).obs;
 
   BluetoothCharacteristic? targetCharacteristic;
 
@@ -63,23 +67,25 @@ class BleController extends GetxController {
     }
   }
 
+  // Actualiza el arreglo circular de ecg1
+  void updateEcg1Data(int newValue) {
+    ecg1Data.removeAt(0); // Elimina el primer elemento
+    ecg1Data.add(newValue); // Agrega el nuevo valor al final
+  }
+
   // Función para decodificar datos del buffer
   void decodeAFEData(List<int> buffer) {
     if (buffer.length < 20) return;
 
-    // Extract ECG data (bytes 8-10)
     int ecg1 = decodeSensorData(buffer.sublist(8, 11));
-
-    // Extract PPG1 data (bytes 12-14)
     int ecg2 = decodeSensorData(buffer.sublist(12, 15));
-
-    // Extract PPG2 data (bytes 16-18)
     int ppg = decodeSensorData(buffer.sublist(16, 19));
 
-    // Actualiza los valores decodificados
     decodedValues["ecg1"] = ecg1;
     decodedValues["ecg2"] = ecg2;
     decodedValues["ppg"] = ppg;
+
+    updateEcg1Data(ecg1); // Actualiza el arreglo circular de ecg1
 
     print("ECG1: $ecg1, ECG2: $ecg2, PPG: $ppg");
   }
@@ -95,7 +101,7 @@ class BleController extends GetxController {
     int sign = 0;
     if ((data[2] & 0xE0) == 0xE0 || (data[2] & 0xE0) == 0xC0) {
       sign = -1;
-    } else if((data[2] & 0xE0) == 0x20 || (data[2] & 0xE0) == 0x00){
+    } else if ((data[2] & 0xE0) == 0x20 || (data[2] & 0xE0) == 0x00) {
       sign = 1;
     }
 
