@@ -5,7 +5,14 @@ class BleController extends GetxController {
   FlutterBlue ble = FlutterBlue.instance;
 
   final String targetServiceUuid = "12345678-1234-5678-1234-567812345678";
-  final String targetCharacteristicUuid = "98679657-1234-5678-1234-567812345678";
+  final List<String> targetCharacteristicsUuids = [
+    "98679657-1234-5678-1234-567812345671",
+    "98679657-1234-5678-1234-567812345672",
+    "98679657-1234-5678-1234-567812345673",
+    "98679657-1234-5678-1234-567812345674",
+    "98679657-1234-5678-1234-567812345675",
+    "98679657-1234-5678-1234-567812345676",
+  ];
 
   RxBool isConnecting = true.obs;
   RxBool isConnected = false.obs;
@@ -15,7 +22,7 @@ class BleController extends GetxController {
   // Arreglo circular para ecg1
   RxList<int> ecg1Data = List.filled(2500, 0).obs;
 
-  BluetoothCharacteristic? targetCharacteristic;
+  List<BluetoothCharacteristic> targetCharacteristics = [];
 
   // Escanea dispositivos y conecta automáticamente
   Future<void> scanAndConnect({required Function onConnected}) async {
@@ -35,24 +42,27 @@ class BleController extends GetxController {
             for (BluetoothService service in services) {
               if (service.uuid.toString().toLowerCase() == targetServiceUuid.toLowerCase()) {
                 for (BluetoothCharacteristic characteristic in service.characteristics) {
-                  if (characteristic.uuid.toString().toLowerCase() ==
-                      targetCharacteristicUuid.toLowerCase()) {
-                    targetCharacteristic = characteristic;
-                    isConnected.value = true;
-                    isConnecting.value = false;
+                  if (targetCharacteristicsUuids.contains(
+                      characteristic.uuid.toString().toLowerCase())) {
+                    targetCharacteristics.add(characteristic);
 
                     // Activa notificaciones para recibir datos en tiempo real
-                    targetCharacteristic?.setNotifyValue(true);
-                    targetCharacteristic?.value.listen((value) {
+                    characteristic.setNotifyValue(true);
+                    characteristic.value.listen((value) {
                       if (value.length >= 20) {
                         decodeAFEData(value);
                       }
                     });
-
-                    // Llama al callback para navegar
-                    onConnected();
-                    return;
                   }
+                }
+
+                if (targetCharacteristics.length == targetCharacteristicsUuids.length) {
+                  isConnected.value = true;
+                  isConnecting.value = false;
+
+                  // Llama al callback para navegar
+                  onConnected();
+                  return;
                 }
               }
             }
@@ -108,3 +118,4 @@ class BleController extends GetxController {
     return sign * value;
   }
 }
+
