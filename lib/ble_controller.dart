@@ -12,6 +12,9 @@ class BleController extends GetxController {
     "98679657-1234-5678-1234-567812345674",
     "98679657-1234-5678-1234-567812345675",
     "98679657-1234-5678-1234-567812345676",
+    "98679657-1234-5678-1234-567812345677",
+    "98679657-1234-5678-1234-567812345678",
+    "98679657-1234-5678-1234-567812345679",
   ];
 
   RxBool isConnecting = true.obs;
@@ -19,8 +22,8 @@ class BleController extends GetxController {
 
   RxMap<String, int> decodedValues = {"ecg1": 0, "ecg2": 0, "ppg": 0}.obs;
 
-  // Arreglo circular para ecg1
-  RxList<int> ecg1Data = List.filled(2500, 0).obs;
+  // Arreglo circular para ecg1 en voltaje (double)
+  RxList<double> ecg1Data = List.filled(500, 0.0).obs;
 
   List<BluetoothCharacteristic> targetCharacteristics = [];
 
@@ -77,10 +80,13 @@ class BleController extends GetxController {
     }
   }
 
-  // Actualiza el arreglo circular de ecg1
-  void updateEcg1Data(int newValue) {
+  // Actualiza el arreglo circular de ecg1 con valores en voltaje
+  void updateEcg1Data(int rawValue) {
+    // Convierte el valor crudo a voltaje
+    double voltage = rawValue * 1.2 / ((1 << 21) - 1);
+
     ecg1Data.removeAt(0); // Elimina el primer elemento
-    ecg1Data.add(newValue); // Agrega el nuevo valor al final
+    ecg1Data.add(voltage); // Agrega el nuevo valor en voltaje al final
   }
 
   // Función para decodificar datos del buffer
@@ -95,9 +101,9 @@ class BleController extends GetxController {
     decodedValues["ecg2"] = ecg2;
     decodedValues["ppg"] = ppg;
 
-    updateEcg1Data(ecg1); // Actualiza el arreglo circular de ecg1
+    updateEcg1Data(ecg1); // Actualiza el arreglo circular de ecg1 con voltaje
 
-    print("ECG1: $ecg1, ECG2: $ecg2, PPG: $ppg");
+    print("ECG1 Raw: $ecg1, ECG1 Voltage: ${ecg1 * 1.2 / ((1 << 21) - 1)}");
   }
 
   // Función auxiliar para decodificar un sensor
@@ -108,14 +114,13 @@ class BleController extends GetxController {
     int value = (data[2] & 0x1F) << 16 | (data[1] << 8) | data[0];
 
     // Determina el signo
-    int sign = 0;
-    if ((data[2] & 0xE0) == 0xE0 || (data[2] & 0xE0) == 0xC0) {
+    int sign = 1;
+    if ((data[2] & 0xE0) == 0xE0) {
       sign = -1;
-    } else if ((data[2] & 0xE0) == 0x20 || (data[2] & 0xE0) == 0x00) {
+    } else {
       sign = 1;
     }
 
     return sign * value;
   }
 }
-

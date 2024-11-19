@@ -20,7 +20,7 @@ class DataRawPage extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Text(
-                    "ECG1 Real-Time Plot",
+                    "ECG1 Real-Time Plot (Voltage)",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -41,7 +41,7 @@ class DataRawPage extends StatelessWidget {
                                 show: true,
                                 drawVerticalLine: true,
                                 verticalInterval: 500,
-                                horizontalInterval: (1 << 21) / 5,
+                                horizontalInterval: 0.2, // Intervalos en voltaje
                                 getDrawingHorizontalLine: (value) => FlLine(
                                   color: Colors.grey.shade400,
                                   strokeWidth: 0.8,
@@ -61,16 +61,18 @@ class DataRawPage extends StatelessWidget {
                                 LineChartBarData(
                                   spots: List.generate(
                                     controller.ecg1Data.length,
-                                        (i) => FlSpot(i.toDouble(), controller.ecg1Data[i].toDouble()),
+                                        (i) => FlSpot(i.toDouble(), controller.ecg1Data[i]),
                                   ),
                                   isCurved: true,
                                   color: Colors.blue,
+                                  barWidth: 2.5, // Aumenta el grosor de la línea
+                                  curveSmoothness: 0.2, // Suaviza las curvas (menor = más suave)
                                   dotData: FlDotData(show: false),
                                   belowBarData: BarAreaData(show: false),
                                 ),
                               ],
-                              minY: -(1 << 21).toDouble(),
-                              maxY: (1 << 21).toDouble(),
+                              minY: -1.2, // Límite inferior en voltaje
+                              maxY: 1.2, // Límite superior en voltaje
                               minX: 0,
                               maxX: controller.ecg1Data.length.toDouble(),
                             ),
@@ -82,9 +84,9 @@ class DataRawPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Obx(() {
-                  final ecg1 = controller.decodedValues["ecg1"] ?? 0;
+                  final ecg1Voltage = controller.ecg1Data.last; // Último valor en voltaje
                   return Text(
-                    "Muestra actual: $ecg1",
+                    "Última muestra (V): ${ecg1Voltage.toStringAsFixed(4)}",
                     style: Theme.of(context).textTheme.bodyLarge,
                   );
                 }),
