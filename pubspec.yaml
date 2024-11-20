@@ -18,6 +18,9 @@ dependencies:
   get: ^4.6.5
   permission_handler:
   fl_chart: ^0.68.0
+  path_provider: ^2.0.14
+  path_provider_android: ^2.0.11
+  csv: ^5.0.0
 
 dev_dependencies:
   flutter_test:

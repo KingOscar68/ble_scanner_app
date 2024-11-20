@@ -1,7 +1,8 @@
+import 'package:ble_scanner_app/ble_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 import 'package:get/get.dart';
-import 'ble_controller.dart';
-import 'data_raw.dart';
+import 'data_raw.dart';  // Asegúrate de importar la nueva página
 
 void main() {
   runApp(const MyApp());
@@ -12,20 +13,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'BLE Scanner',
+    return MaterialApp(
+      title: 'Flutter BLE Scanner',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        brightness: Brightness.dark, // Aquí se cambia el modo a oscuro
+        colorScheme: const ColorScheme.dark(),
         useMaterial3: true,
       ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      themeMode: ThemeMode.system, // Cambia automáticamente según el sistema
       home: const MyHomePage(),
     );
   }
@@ -39,34 +33,64 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final BleController _controller = Get.put(BleController());
-
-  @override
-  void initState() {
-    super.initState();
-    _controller.scanAndConnect(onConnected: () {
-      // Navega a la nueva página cuando se conecte al dispositivo
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DataRawPage()),
-      );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("BLE Scanner")),
-      body: Center(
-        child: Obx(() {
-          if (_controller.isConnecting.value) {
-            return const CircularProgressIndicator();
-          } else if (_controller.isConnected.value) {
-            return const Text("¡Dispositivo conectado!");
-          } else {
-            return const Text("Buscando dispositivo...");
-          }
-        }),
+      appBar: AppBar(title: const Text("BLE SCANNER")),
+      body: GetBuilder<BleController>(
+        init: BleController(),
+        builder: (BleController controller) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                StreamBuilder<List<ScanResult>>(
+                  stream: controller.scanResults,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Expanded(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            final data = snapshot.data![index];
+                            return Card(
+                              elevation: 2,
+                              child: ListTile(
+                                title: Text(data.device.name),
+                                subtitle: Text(data.device.id.id),
+                                trailing: Text(data.rssi.toString()),
+                                onTap: () async {
+                                  await controller.connectToDevice(data.device);
+                                  // Navegar a la página DataRaw cuando se conecte
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const DataRawPage(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    } else {
+                      return const Center(child: Text("No Device Found"));
+                    }
+                  },
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    controller.scanDevices();
+                  },
+                  child: const Text("SCAN"),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
