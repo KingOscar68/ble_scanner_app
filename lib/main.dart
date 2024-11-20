@@ -2,7 +2,7 @@ import 'package:ble_scanner_app/ble_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:get/get.dart';
-import 'data_raw.dart';  // Asegúrate de importar la nueva página
+import 'buffer.dart';  // Importa la página BufferPage
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter BLE Scanner',
       theme: ThemeData(
-        brightness: Brightness.dark, // Aquí se cambia el modo a oscuro
+        brightness: Brightness.dark,
         colorScheme: const ColorScheme.dark(),
         useMaterial3: true,
       ),
@@ -62,11 +62,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                 trailing: Text(data.rssi.toString()),
                                 onTap: () async {
                                   await controller.connectToDevice(data.device);
-                                  // Navegar a la página DataRaw cuando se conecte
+                                  // Navegar a la página Buffer cuando se conecte
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const DataRawPage(),
+                                      builder: (context) => const BufferPage(),
                                     ),
                                   );
                                 },
@@ -95,3 +95,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+

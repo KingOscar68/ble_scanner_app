@@ -2,37 +2,47 @@ import 'package:flutter_blue/flutter_blue.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class BleController extends GetxController{
-
+class BleController extends GetxController {
   FlutterBlue ble = FlutterBlue.instance;
+  BluetoothDevice? connectedDevice;
+  List<BluetoothService> services = [];
+  Map<String, Stream<List<int>>> characteristicsData = {}; // Para almacenar los streams de cada característica
 
-// This Function will help users to scan near by BLE devices and get the list of Bluetooth devices.
-  Future scanDevices() async{
-    if(await Permission.bluetoothScan.request().isGranted){
-      if(await Permission.bluetoothConnect.request().isGranted){
+  // Esta función conecta al dispositivo y descubre sus servicios
+  Future<void> connectToDevice(BluetoothDevice device) async {
+    await device.connect(timeout: Duration(seconds: 15));
+
+    // Al conectarse, obtenemos los servicios disponibles
+    List<BluetoothService> discoveredServices = await device.discoverServices();
+
+    // Guardamos los servicios descubiertos en la lista
+    services = discoveredServices;
+
+    // Suscribirnos a las características del servicio
+    for (var service in services) {
+      for (var characteristic in service.characteristics) {
+        if (characteristic.properties.notify) {
+          await characteristic.setNotifyValue(true); // Habilitar notificaciones para esta característica
+          // Guardamos el stream de datos de cada característica
+          characteristicsData[characteristic.uuid.toString()] = characteristic.value;
+        }
+      }
+    }
+
+    update();
+  }
+
+  // Esta función escanea los dispositivos disponibles
+  Future scanDevices() async {
+    if (await Permission.bluetoothScan.request().isGranted) {
+      if (await Permission.bluetoothConnect.request().isGranted) {
         ble.startScan(timeout: Duration(seconds: 15));
 
+        // Stop scanning after timeout
         ble.stopScan();
       }
     }
   }
 
-// This function will help user to connect to BLE devices.
-  Future<void> connectToDevice(BluetoothDevice device)async {
-    await device.connect(timeout: Duration(seconds: 15));
-
-    device.state.listen((isConnected) {
-      if(isConnected == BluetoothDeviceState.connecting){
-        print("Device connecting to: ${device.name}");
-      }else if(isConnected == BluetoothDeviceState.connected){
-        print("Device connected: ${device.name}");
-      }else{
-        print("Device Disconnected");
-      }
-    });
-
-  }
-
   Stream<List<ScanResult>> get scanResults => ble.scanResults;
-
 }
